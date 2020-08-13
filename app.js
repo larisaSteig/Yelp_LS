@@ -6,12 +6,14 @@ const mongoose = require("mongoose");
 const passport= require('passport');
 const dotenv= require('dotenv').config()
 const LocalStrategy = require('passport-local');
+const router = express.Router();
 // const passportLocalMongoose = require ('npm install');
 
 const User = require('./models/user')
+const Campground = require('./models/campgrounds')
 
 const mongoDB = process.env.MONGODB_URL;
-
+const addCamp = require('./router/addCamp')
 // ***************************************************/ ******* Set up default mongoose connection
 mongoose.connect(mongoDB, { useUnifiedTopology: true,useNewUrlParser: true });
 const db = mongoose.connection;
@@ -43,17 +45,17 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-const campgrounds = [
-  {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
-  {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-  {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'},
-  {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
-  {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-  {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'},
-  {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
-  {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-  {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'}
-]
+// const campgrounds = [
+//   {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
+//   {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
+//   {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'},
+//   {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
+//   {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
+//   {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'},
+//   {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
+//   {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
+//   {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'}
+// ]
 // image:"img/one.jpg"
 
 // {name: "Smoke", image:"https://www.reserveamerica.com/webphotos/racms/articles/images/bca19684-d902-422d-8de2-f083e77b50ff_image2_GettyImages-677064730.jpg"},
@@ -71,26 +73,33 @@ app.get ("/secret", function(req,res){
 })
 // GET route show everything we have
 app.get("/campgrounds", function(req, res){
-    res.render("campgrounds", {gallery: campgrounds})
-})
+  Campground.find(function(err, images){
+    if(err){
+      console.log(err)
+    } else {
+    res.render("campgrounds",{gallery:images});
+    }
+  })
+})   
 
-// POST roure gives us ability to add new campgrounds in
-app.post("/campgrounds", function(req, res){
-  // res.send( "you hit the post route")
-  const name = req.body.name;
-  const image = req.body.image;
-  const newCamp = {name:name, image:image};
-  campgrounds.push(newCamp)
-  // get data from form and add to campground arrar and 
-  // redirect back to gallery page ( campgrounds)
-  res.redirect("/campgrounds")
-})
+// // POST roure gives us ability to add new campgrounds in
+// app.post("/campgrounds", function(req, res){
+//   // res.send( "you hit the post route")
+//   const name = req.body.name;
+//   const image = req.body.image;
+//   const newCamp = {name:name, image:image};
+//   campgrounds.push(newCamp)
+//   // get data from form and add to campground arrar and 
+//   // redirect back to gallery page ( campgrounds)
+//   res.redirect("/campgrounds")
+// })
 
 // there is a form to fill up and send to POST /gallery
 app.get("/campgrounds/new",isLoggedIn, function(req, res){
   res.render("new.ejs")
 })
 
+app.use(addCamp)
 // // AUTH ROUTES
 
 app.get("/register", function(req, res){
