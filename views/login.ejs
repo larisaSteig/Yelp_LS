@@ -1,4 +1,9 @@
 <%- include("partials/header") %>
+<% if (!error) { %>
+  <p> </p>
+<%} else { %> 
+    <p class="welcome"> <%= error %> </p> 
+<%} %>
 
 <div class="container"> 
     <h1 style='text-align:center;'> Please, log into account</h1>

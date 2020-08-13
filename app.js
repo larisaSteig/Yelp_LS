@@ -1,19 +1,24 @@
 const path = require('path');
 const express = require('express');
-
+const connectFlash = require('connect-flash');
 const bodyParser =require ('body-parser');
 const mongoose = require("mongoose");
 const passport= require('passport');
 const dotenv= require('dotenv').config()
 const LocalStrategy = require('passport-local');
 const router = express.Router();
-// const passportLocalMongoose = require ('npm install');
+const passportLocalMongoose = require ('passport-local-mongoose');
 
 const User = require('./models/user')
 const Campground = require('./models/campgrounds')
 
+
 const mongoDB = process.env.MONGODB_URL;
-const addCamp = require('./router/addCamp')
+
+const addCamp = require('./router/addCamp');
+const auth = require('./router/auth');
+
+const campgrounds = require('./models/campgrounds');
 // ***************************************************/ ******* Set up default mongoose connection
 mongoose.connect(mongoDB, { useUnifiedTopology: true,useNewUrlParser: true });
 const db = mongoose.connection;
@@ -45,101 +50,63 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-// const campgrounds = [
-//   {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
-//   {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-//   {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'},
-//   {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
-//   {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-//   {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'},
-//   {name: "Smoke", image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS5vmzNoCm6BMBf-jvA_PQubAM_YNO6Co1rxg&usqp=CAU'},
-//   {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-//   {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'}
-// ]
-// image:"img/one.jpg"
 
-// {name: "Smoke", image:"https://www.reserveamerica.com/webphotos/racms/articles/images/bca19684-d902-422d-8de2-f083e77b50ff_image2_GettyImages-677064730.jpg"},
-// {name: "Little Cat", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsfchf2Sus-OEw0pIf49OdiaA8kSgrWz4SKg&usqp=CAU'},
-// {name:'Grizzly', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR8hc5mulzODwEJlzuqyREe-jt5DWCSO4j1cg&usqp=CAU'}
+
+app.use(connectFlash());
+
+app.use(function(req,res,next){
+  res.locals.currentUser = req.user;
+  res.locals.error = req.flash('error');
+  next()
+})
 
 
 //  ************ROUTES
+
 app.get("/", function(req,res){
-  res.render("index");
+  res.render("landing");
 })
-
-app.get ("/secret", function(req,res){
-  res.render("secret")
-})
-// GET route show everything we have
-app.get("/campgrounds", function(req, res){
-  Campground.find(function(err, images){
-    if(err){
-      console.log(err)
-    } else {
-    res.render("campgrounds",{gallery:images});
-    }
-  })
-})   
-
-// // POST roure gives us ability to add new campgrounds in
-// app.post("/campgrounds", function(req, res){
-//   // res.send( "you hit the post route")
-//   const name = req.body.name;
-//   const image = req.body.image;
-//   const newCamp = {name:name, image:image};
-//   campgrounds.push(newCamp)
-//   // get data from form and add to campground arrar and 
-//   // redirect back to gallery page ( campgrounds)
-//   res.redirect("/campgrounds")
-// })
-
-// there is a form to fill up and send to POST /gallery
-app.get("/campgrounds/new",isLoggedIn, function(req, res){
-  res.render("new.ejs")
-})
-
-app.use(addCamp)
-// // AUTH ROUTES
-
 app.get("/register", function(req, res){
   res.render("register")
 })
 
-// // handling user sign up
-
-app.post("/register", function(req,res){
-  const username = req.body.username
-  const password= req.body.password
-  User.register(new User({username:username}), password, function(err, user){
-    if (err){
-      console.log(err);
-      return res.render('register')
-    } 
-    // passport.authenticate("local")(req,res,function(){
-      res.redirect("/campgrounds/new")
-    // })
-  })
-})
-
-//  LOGIN ROUTE
 app.get("/login", function(req,res){
   res.render("login")
 })
 
-app.post("/login",passport.authenticate("local",{
-  successRedirect:"/campgrounds/new",
-  failureRedirect: "/login"
-}),
-function(res,res){
+
+// GET route show everything we have
+app.get("/index", function(req, res){
+  Campground.find(function(err, images){
+    if(err){
+      console.log(err)
+    } else {
+    res.render("index",{gallery:images});
+    }
+  })
 })
 
-// LOGOUT ROUTE
-
-app.get("/logout", function(req, res){
-  req.logout();
-  res.redirect("/")
+// NEW ROUTES //  there is a form to fill up and send to POST /gallery
+app.get("/index/new",isLoggedIn, function(req, res){
+  res.render("new.ejs")
 })
+
+// SHOW route
+app.get("/index/:id", function(req,res){
+  campgrounds.findById(req.params.id, function(err, foundCamp){
+    if (err){
+      console.log(err)
+    } else (
+      res.render("show",{campground:foundCamp})
+    )
+  })
+
+})
+
+
+
+app.use(addCamp)
+app.use(auth)
 
 // FUNCTION IS LOGGED IN
 
@@ -149,6 +116,8 @@ function isLoggedIn(req,res,next){
   }
   res.redirect("/login")
 }
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen (PORT, function(){

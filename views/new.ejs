@@ -1,11 +1,11 @@
 <%- include("partials/header") %>
-
+<p>Current user is <%= currentUser %></p>
 <div class="container"> 
   <h1 style='text-align:center;'>Create a new campground</h1>
   <div style="width:30%; margin:40px auto;">
    
 
-    <form action="/campgrounds" method ="POST">
+    <form action="/index" method ="POST">
       <div class="form-group">
         <input class='form-control' type="text" placeholder ="name" name ="name">
       </div>
@@ -18,7 +18,7 @@
       
     </form>
     
-  <a href="/campgrounds">Go back</a> 
+  <a href="/index/show">Go back</a> 
   </div>
 
 
