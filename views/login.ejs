@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1> login page</h1>
+
+<form action="/login" method="POST">
+  <input type="text" placeholder="username" name="username" class ="username">
+  <input type="password" placeholder="password" name="password" class = "password">
+  <button class="submit">Submit</button>
+  <p class="message"></p>
+</form>
+
+<!-- <script>
+let username = document.querySelector(".username")
+let password = document.querySelector(".password")
+let submit =document.querySelector (".submit")
+
+if( window.localStorage){
+  // store value key and value pair
+  localStorage.setItem("user","daily")
+  localStorage.setItem("pass","@123")
+
+  let user = localStorage.getItem("user")
+  let pass = localStorage.getItem("pass")
+
+  let message = document.querySelector(".message")
+
+  submit.addEventListener("click", function(){
+    if(user == username.value && pass ==password.value){
+      message.innerHTML ="Login Succesful"
+    } else{ 
+      message.innerHTML = "Username or password is not good"
+
+    }
+  })
+
+
+}
+
+
+</script> -->
+</body>
+</html>
