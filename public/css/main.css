@@ -1,0 +1,21 @@
+
+
+.img-thumbnail {
+  padding:0;
+
+}
+
+.card .caption-full {
+  padding: 9px
+}
+#deleteform {
+  display: inline;
+}
+
+#add-new-camp {
+  text-align: center;
+}
+
+.welcome {
+margin:auto
+ }

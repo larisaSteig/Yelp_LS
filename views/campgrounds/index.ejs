@@ -1,12 +1,12 @@
-<%- include("partials/header") %>
+<%- include("../partials/header") %>
 
 
-<div class="container">
+<div class="container" id="add-new-camp">
   <header class='jumbotron'>
     <div class='container'>
       <h1> Welcome to Camp</h1>
       <p>View our hand-picked campgrounds from all over the world</p>
-      <p><a class='btn btn-primary btn-large' href="/campgrounds/new">Add New Campground</a></p>
+      <p><a class='btn btn-primary btn-large' href="/index/new">Add New Campground</a></p>
     </div>
   </header>
 
@@ -20,10 +20,10 @@
             <h4> <%= campground.name %></h4>
           </div>
         </div>
-        <a class='btn btn-lg btn-primary btn-block' href="/campgrounds/<%= campground._id%>">More details</a> 
+        <a class='btn btn-lg btn-primary btn-block' href="/index/<%= campground._id%>">More details</a> 
       </div>
       <% })%>
   </div>    
 </div>
 
-<%- include("partials/footer") %>
+<%- include("../partials/footer") %>

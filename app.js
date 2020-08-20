@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const connectFlash = require('connect-flash');
+const flash = require('connect-flash');
 const bodyParser =require ('body-parser');
 const mongoose = require("mongoose");
 const passport= require('passport');
@@ -8,19 +8,24 @@ const dotenv= require('dotenv').config()
 const LocalStrategy = require('passport-local');
 const router = express.Router();
 const passportLocalMongoose = require ('passport-local-mongoose');
+const methodOverride = require('method-override')
 
 const User = require('./models/user')
 const Campground = require('./models/campgrounds')
-
+const Comment = require('./models/comment')
 
 const mongoDB = process.env.MONGODB_URL;
 
-const addCamp = require('./router/addCamp');
+// requiring routes
 const auth = require('./router/auth');
+const addCamp = require('./router/addCamp');
+const comment = require('./router/comments');
 
-const campgrounds = require('./models/campgrounds');
+
+// const campgrounds = require('./models/campgrounds');
+const seedDB = require('./seeds');
 // ***************************************************/ ******* Set up default mongoose connection
-mongoose.connect(mongoDB, { useUnifiedTopology: true,useNewUrlParser: true });
+mongoose.connect(mongoDB, { useUnifiedTopology: true,useNewUrlParser: true,useFindAndModify: false });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function() {
@@ -29,6 +34,7 @@ db.once('open', function() {
 // ***************************************************************************
 
 
+// seedDB();
 const app = express()
 app.use (require("express-session")({
   secret: "Yessi is the best dog ever",
@@ -37,7 +43,9 @@ app.use (require("express-session")({
 }))
 
 app.use(bodyParser.urlencoded ({extended:true}));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname + "/public"));
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(methodOverride("_method"))
 
 app.set("view engine", "ejs")
 
@@ -49,73 +57,31 @@ passport.use(new LocalStrategy(User.authenticate()))
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-
-
-
-app.use(connectFlash());
+app.use(flash());
 
 app.use(function(req,res,next){
   res.locals.currentUser = req.user;
   res.locals.error = req.flash('error');
+  res.locals.success = req.flash('success');
   next()
 })
 
 
-//  ************ROUTES
 
-app.get("/", function(req,res){
-  res.render("landing");
-})
-app.get("/register", function(req, res){
-  res.render("register")
-})
-
-app.get("/login", function(req,res){
-  res.render("login")
-})
-
-
-// GET route show everything we have
-app.get("/index", function(req, res){
-  Campground.find(function(err, images){
-    if(err){
-      console.log(err)
-    } else {
-    res.render("index",{gallery:images});
-    }
-  })
-})
-
-// NEW ROUTES //  there is a form to fill up and send to POST /gallery
-app.get("/index/new",isLoggedIn, function(req, res){
-  res.render("new.ejs")
-})
-
-// SHOW route
-app.get("/index/:id", function(req,res){
-  campgrounds.findById(req.params.id, function(err, foundCamp){
-    if (err){
-      console.log(err)
-    } else (
-      res.render("show",{campground:foundCamp})
-    )
-  })
-
-})
-
-
-
-app.use(addCamp)
 app.use(auth)
+app.use("/index", addCamp)
+app.use("/index/:id/comments",comment)
 
-// FUNCTION IS LOGGED IN
 
-function isLoggedIn(req,res,next){
-  if(req.isAuthenticated()){
-    return next()
-  }
-  res.redirect("/login")
-}
+
+// // FUNCTION IS LOGGED IN
+
+// function isLoggedIn(req,res,next){
+//   if(req.isAuthenticated()){
+//     return next()
+//   }
+//   res.redirect("/login")
+// }
 
 
 
