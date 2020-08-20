@@ -23,7 +23,7 @@ const comment = require('./router/comments');
 
 
 // const campgrounds = require('./models/campgrounds');
-const seedDB = require('./seeds');
+// const seedDB = require('./seeds');
 // ***************************************************/ ******* Set up default mongoose connection
 mongoose.connect(mongoDB, { useUnifiedTopology: true,useNewUrlParser: true,useFindAndModify: false });
 const db = mongoose.connection;

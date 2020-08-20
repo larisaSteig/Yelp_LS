@@ -10,7 +10,7 @@ const middleware = require('../middleware/index.js')
 
 
 router.get("/", function(req, res){
-  res.render("landing", {})
+  res.render("index", {})
 })
 router.get("/login", function(req, res){
   
