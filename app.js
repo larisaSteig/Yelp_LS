@@ -72,19 +72,6 @@ app.use(auth)
 app.use("/index", addCamp)
 app.use("/index/:id/comments",comment)
 
-
-
-// // FUNCTION IS LOGGED IN
-
-// function isLoggedIn(req,res,next){
-//   if(req.isAuthenticated()){
-//     return next()
-//   }
-//   res.redirect("/login")
-// }
-
-
-
 const PORT = process.env.PORT || 3000;
 app.listen (PORT, function(){
   console.log ("The YelpCamp Server is running")
