@@ -22,8 +22,6 @@ const addCamp = require('./router/addCamp');
 const comment = require('./router/comments');
 
 
-// const campgrounds = require('./models/campgrounds');
-// const seedDB = require('./seeds');
 // ***************************************************/ ******* Set up default mongoose connection
 mongoose.connect(mongoDB, { useUnifiedTopology: true,useNewUrlParser: true,useFindAndModify: false });
 const db = mongoose.connection;
@@ -34,7 +32,7 @@ db.once('open', function() {
 // ***************************************************************************
 
 
-// seedDB();
+
 const app = express()
 app.use (require("express-session")({
   secret: "Yessi is the best dog ever",
@@ -65,7 +63,6 @@ app.use(function(req,res,next){
   res.locals.success = req.flash('success');
   next()
 })
-
 
 
 app.use(auth)

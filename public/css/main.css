@@ -16,6 +16,8 @@
   text-align: center;
 }
 
-.welcome {
-margin:auto
- }
+.nav-item p {
+  padding: 8px;
+  margin-bottom: 0;
+  color: #007bff
+}
